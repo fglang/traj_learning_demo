@@ -42,7 +42,7 @@ class SimpleQPWLSModel(BaseModel):
         # Define the terms
         if self.isTrain:
             self.model_names = ['Sampling']
-            self.loss_names = ['G_I_L1', 'G_I_L2', 'grad', 'slew', 'TE']
+            self.loss_names = ['G_I_L1', 'G_I_L2', 'grad', 'slew']
 
         else:  # during test time, only load Gs
             self.model_names = ['Sampling']
