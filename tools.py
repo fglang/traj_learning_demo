@@ -86,6 +86,7 @@ def traj2norm(ktraj, res=2e-3):
 
 def eddy_perturbation(ktraj, opt, ampl=1e-5, alphas=None, taus=None):
     """
+    simple eddy current forward model
     """
     ktraj_phys = ktraj.clone().reshape([2,opt.num_shots,opt.nfe])
 
