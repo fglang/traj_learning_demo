@@ -103,11 +103,13 @@ class SimpleQPWLSModel(BaseModel):
             self.loss_grad = torch.sum(torch.pow(softgrad(torch.abs(self.grad)), 2))*self.opt.loss_grad
             self.loss_slew = torch.sum(torch.pow(softslew(torch.abs(self.slew)), 2))*self.opt.loss_slew
         
-        self.loss_pi = self.opt.loss_pi * torch.sum(torch.pow(softpi(torch.abs(self.ktraj)),2))
+        kmax = self.ktraj.squeeze().abs().max().detach().cpu()
+        print(kmax)
+        self.loss_pi = self.opt.loss_pi * softpi(self.ktraj.abs().pow(2).sum(1)).norm()
         
         self.loss_TE = self.ktraj.reshape(2,self.opt.num_shots,-1)[:,:,self.opt.loss_TE_index].norm() * self.opt.loss_TE
         
-        self.loss_G = self.loss_G_CON_I + self.loss_grad + self.loss_slew + self.loss_TE
+        self.loss_G = self.loss_G_CON_I + self.loss_grad + self.loss_slew + self.loss_TE + self.loss_pi
 
         self.loss_G.backward()
 
