@@ -11,9 +11,11 @@ def plot_traj(ktraj, num_shots, nfe):
         plt.plot(traj_temp[0,ishot,:], traj_temp[1,ishot,:], '.-')
     plt.title('trajectory')
     plt.xlabel('kx'), plt.ylabel('ky')
+    plt.xlim([-3.5,+3.5])
+    plt.ylim([-3.5,+3.5])
 
 
-def plot_epoch(model, opt, all_losses, epoch, do_save=True):
+def plot_epoch(model, opt, all_losses, epoch, do_save=True, logloss=True):
     ''' plot k-space trajectory and images at every epoch'''
     ### k-space trajectory
     plt.figure(111, figsize=(20,10))
@@ -27,9 +29,9 @@ def plot_epoch(model, opt, all_losses, epoch, do_save=True):
     diff_img = Ireal_mag - Ifake_mag
 
     plt.subplot(2,4,2)
-    plt.imshow(Iunder_mag.cpu().detach(), vmin=0, vmax=Ireal_mag.max())
+    plt.imshow(Ireal_mag.cpu().detach(), vmin=0, vmax=Ireal_mag.max())
     plt.colorbar()
-    plt.title('adjoint')
+    plt.title('ground truth')
 
     plt.subplot(2,4,3)
     plt.imshow(Ifake_mag.cpu().detach(), vmin=0, vmax=Ireal_mag.max())
@@ -44,7 +46,11 @@ def plot_epoch(model, opt, all_losses, epoch, do_save=True):
     ### loss curves
     plt.subplot(2,3,4)
     for loss_name in model.loss_names:
-        plt.plot(all_losses[loss_name], '.-', label=loss_name)
+        if logloss:
+            plothandle = plt.semilogy
+        else:
+            plothandle = plt.plot
+        plothandle(all_losses[loss_name], '.-', label=loss_name)
     plt.legend(loc='upper right')
     plt.xlabel('epoch')
     plt.title('losses')

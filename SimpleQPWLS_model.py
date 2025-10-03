@@ -42,7 +42,7 @@ class SimpleQPWLSModel(BaseModel):
         # Define the terms
         if self.isTrain:
             self.model_names = ['Sampling']
-            self.loss_names = ['G_I_L1', 'G_I_L2', 'grad', 'slew']
+            self.loss_names = ['G_I_L1', 'G_I_L2', 'grad', 'slew', 'TE']
 
         else:  # during test time, only load Gs
             self.model_names = ['Sampling']
@@ -103,18 +103,14 @@ class SimpleQPWLSModel(BaseModel):
             self.loss_grad = torch.sum(torch.pow(softgrad(torch.abs(self.grad)), 2))*self.opt.loss_grad
             self.loss_slew = torch.sum(torch.pow(softslew(torch.abs(self.slew)), 2))*self.opt.loss_slew
         
-        self.loss_G = self.loss_G_CON_I + self.loss_grad + self.loss_slew 
+        self.loss_TE = self.ktraj.reshape(2,self.opt.num_shots,-1)[:,:,self.opt.loss_TE_index].norm() * self.opt.loss_TE
+        
+        self.loss_G = self.loss_G_CON_I + self.loss_grad + self.loss_slew + self.loss_TE
 
         self.loss_G.backward()
 
     def forward(self):
         self.ktraj, self.grad, self.slew = self.netSampling(1) # get trajectory according to current parameters
-        
-        if self.opt.fix_first_k0:
-            self.ktraj = self.ktraj.reshape(3, self.opt.num_shots, -1)
-            self.ktraj[:,:,0] = 0
-            self.ktraj = self.ktraj.reshape(1,3,-1)
-            
         self.ktraj = self.ktraj[:,:-1,:] # FG: ignore z-component for 2D
         self.pt = pns(self.slew)
 
