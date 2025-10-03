@@ -42,7 +42,7 @@ class SimpleQPWLSModel(BaseModel):
         # Define the terms
         if self.isTrain:
             self.model_names = ['Sampling']
-            self.loss_names = ['G_I_L1', 'G_I_L2', 'grad', 'slew']
+            self.loss_names = ['G_I_L1', 'G_I_L2', 'grad', 'slew', 'TE', 'pi']
 
         else:  # during test time, only load Gs
             self.model_names = ['Sampling']
@@ -102,6 +102,8 @@ class SimpleQPWLSModel(BaseModel):
         else:
             self.loss_grad = torch.sum(torch.pow(softgrad(torch.abs(self.grad)), 2))*self.opt.loss_grad
             self.loss_slew = torch.sum(torch.pow(softslew(torch.abs(self.slew)), 2))*self.opt.loss_slew
+        
+        self.loss_pi = self.opt.loss_pi * torch.sum(torch.pow(softpi(torch.abs(self.ktraj)),2))
         
         self.loss_TE = self.ktraj.reshape(2,self.opt.num_shots,-1)[:,:,self.opt.loss_TE_index].norm() * self.opt.loss_TE
         
