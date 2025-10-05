@@ -15,7 +15,7 @@ def plot_traj(ktraj, num_shots, nfe):
     plt.ylim([-3.5,+3.5])
 
 
-def plot_epoch(model, opt, epoch, do_save=True, logloss=True):
+def plot_epoch(model, opt, epoch, do_save=False, logloss=True):
     ''' plot k-space trajectory and images at every epoch'''
     ### k-space trajectory
     plt.figure(111, figsize=(20,10))
