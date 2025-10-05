@@ -15,7 +15,7 @@ def plot_traj(ktraj, num_shots, nfe):
     plt.ylim([-3.5,+3.5])
 
 
-def plot_epoch(model, opt, all_losses, epoch, do_save=True, logloss=True):
+def plot_epoch(model, opt, epoch, do_save=True, logloss=True):
     ''' plot k-space trajectory and images at every epoch'''
     ### k-space trajectory
     plt.figure(111, figsize=(20,10))
@@ -47,18 +47,22 @@ def plot_epoch(model, opt, all_losses, epoch, do_save=True, logloss=True):
     plt.subplot(2,3,4)
     for loss_name in model.loss_names:
         if logloss:
-            plothandle = plt.semilogy
+            plotfunc = plt.semilogy
         else:
-            plothandle = plt.plot
-        plothandle(all_losses[loss_name], '.-', label=loss_name)
+            plotfunc = plt.plot
+        plotfunc(model.all_losses[loss_name], '.-', label=loss_name)
     plt.legend(loc='upper right')
     plt.xlabel('epoch')
     plt.title('losses')
 
     ### gradient waveforms and slew rates
+    # factors 10 and 100 are used for rescaling between Gauss, Tesla, m, cm, ...
     plt.subplot(2,3,5)
     plt.plot(model.grad[0,:,:].flatten().detach().cpu()*10, '.-')
     plt.plot(model.grad[1,:,:].flatten().detach().cpu()*10, '.-')
+    xl = torch.tensor(plt.xlim())
+    plt.plot(xl, xl*0+opt.gradmax*10, '--')
+    plt.plot(xl, xl*0-opt.gradmax*10, '--')
     plt.ylabel('grad.ampl. [mT/m]')
     plt.legend(['x', 'y'], loc='upper left')
     plt.title('gradient amplitude')
@@ -66,6 +70,9 @@ def plot_epoch(model, opt, all_losses, epoch, do_save=True, logloss=True):
     plt.subplot(2,3,6)
     plt.plot(model.slew[0,:,:].flatten().detach().cpu()/100, '.-')
     plt.plot(model.slew[1,:,:].flatten().detach().cpu()/100, '.-')
+    xl = torch.tensor(plt.xlim())
+    plt.plot(xl, xl*0+opt.slewmax/100, '--')
+    plt.plot(xl, xl*0-opt.slewmax/100, '--')
     plt.ylabel('slew rate [T/m/s]')
     plt.title('slew rate')
 
@@ -127,3 +134,31 @@ def eddy_perturbation(ktraj, opt, ampl=1e-5, alphas=None, taus=None):
         dim=2) 
     
     return k_perturbed
+
+
+def set_misc_params(opt):
+    # more misc params (required by SNOPY framework, but not used in this simple demo)
+    opt.save_latest_freq = 5000
+    opt.save_epoch_freq = 40
+    opt.val_epoch_freq = 40
+    opt.phase = 'train'
+    opt.train_phase = 'generator'
+    opt.which_epoch = 'latest'
+
+    opt.dataroot = None
+    opt.batchSize = 1
+    opt.checkpoints_dir = './checkpoints'
+
+    opt.verbose = True
+    opt.suffix = 'simpleSNOPY'
+
+    opt.isTrain = True
+    opt.resize_or_crop = False
+    opt.init_type = 'normal'
+    opt.init_gain = 0.02
+    opt.norm = 'instance'
+    opt.beta1 = 0.5
+    opt.contrast_condition = None
+    opt.epoch_count = 1
+    opt.continue_train = False
+    opt.ReconVSTraj = 1 # scaling factor of trajectory learning rate

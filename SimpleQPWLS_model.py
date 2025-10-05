@@ -40,16 +40,15 @@ class SimpleQPWLSModel(BaseModel):
         # Define the parameterization strategy. Please replace you own here.
         self.netSampling = networks.define_G(opt, opt.which_model_netD_I, opt.init_type, opt.init_gain, self.gpu_ids)
         # Define the terms
-        if self.isTrain:
-            self.model_names = ['Sampling']
-            self.loss_names = ['G_I_L1', 'G_I_L2', 'grad', 'slew', 'TE', 'pi']
 
-        else:  # during test time, only load Gs
-            self.model_names = ['Sampling']
-            self.loss_names = ['PSNR']
+        self.model_names = ['Sampling']
+        self.loss_names = ['G_I_L1', 'G_I_L2', 'grad', 'slew', 'TE', 'pi']
 
-        # Define the visual terms in the Visdom
-        self.visual_names = ['Ireal', 'Ifake', 'Iunder', 'ktraj', 'Idcf', 'grad', 'slew', 'pt']
+        # keep track of all loss values over epochs
+        
+        self.all_losses = dict()
+        for loss_name in self.loss_names:
+            self.all_losses[loss_name] = []
 
         self.num_shots = opt.num_shots
         self.criterionL1 = torch.nn.L1Loss()
@@ -81,18 +80,23 @@ class SimpleQPWLSModel(BaseModel):
         self.smap = self.smap.unsqueeze(0)
         self.Ireal = self.Ireal.unsqueeze(0).unsqueeze(0)
 
+    def save_losses(self):
+        # add current loss values to loss history
+        current_losses = self.get_current_losses()
+        for loss_name in self.loss_names:
+            self.all_losses[loss_name].append(current_losses[loss_name])
 
     def backward_G(self):
         # Define the loss function
         self.loss_G_I_L1 = self.criterionL1(self.Ifake, self.Ireal) * self.opt.loss_content_I_l1
         self.loss_G_I_L2 = self.criterionMSE(self.Ifake, self.Ireal) * self.opt.loss_content_I_l2
         self.loss_G_CON_I = self.loss_G_I_L1 + self.loss_G_I_L2
-        softgrad = torch.nn.Softshrink(self.opt.gradmax * 0.995)
-        softslew = torch.nn.Softshrink(self.opt.slewmax * 0.995)
-        softpi = torch.nn.Softshrink(torch.pi)
-        pt = torch.norm(self.pt, dim=0)
-
+        softgrad = torch.nn.Softshrink(self.opt.gradmax)
+        softslew = torch.nn.Softshrink(self.opt.slewmax)
+        softpi = torch.nn.Softshrink(torch.pi**2)
+        
         # FG: ignore PNS loss in this simple example
+        # pt = torch.norm(self.pt, dim=0)
         # softpns = torch.nn.Softshrink(self.opt.pth)
         # self.loss_pns = torch.sum(softpns(pt))*self.opt.loss_pns
 
@@ -103,14 +107,13 @@ class SimpleQPWLSModel(BaseModel):
             self.loss_grad = torch.sum(torch.pow(softgrad(torch.abs(self.grad)), 2))*self.opt.loss_grad
             self.loss_slew = torch.sum(torch.pow(softslew(torch.abs(self.slew)), 2))*self.opt.loss_slew
         
-        kmax = self.ktraj.squeeze().abs().max().detach().cpu()
-        print(kmax)
         self.loss_pi = self.opt.loss_pi * softpi(self.ktraj.abs().pow(2).sum(1)).norm()
-        
+
         self.loss_TE = self.ktraj.reshape(2,self.opt.num_shots,-1)[:,:,self.opt.loss_TE_index].norm() * self.opt.loss_TE
         
         self.loss_G = self.loss_G_CON_I + self.loss_grad + self.loss_slew + self.loss_TE + self.loss_pi
 
+        self.save_losses()
         self.loss_G.backward()
 
     def forward(self):
