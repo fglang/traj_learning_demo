@@ -29,12 +29,12 @@ def plot_epoch(model, opt, epoch, do_save=True, logloss=True):
     diff_img = Ireal_mag - Ifake_mag
 
     plt.subplot(2,4,2)
-    plt.imshow(Ireal_mag.cpu().detach(), vmin=0, vmax=Ireal_mag.max())
+    plt.imshow(Ireal_mag.cpu().detach(), vmin=0, vmax=Ireal_mag.max(), cmap='gray')
     plt.colorbar()
     plt.title('ground truth')
 
     plt.subplot(2,4,3)
-    plt.imshow(Ifake_mag.cpu().detach(), vmin=0, vmax=Ireal_mag.max())
+    plt.imshow(Ifake_mag.cpu().detach(), vmin=0, vmax=Ireal_mag.max(), cmap='gray')
     plt.colorbar()
     plt.title('CG SENSE')
 

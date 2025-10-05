@@ -42,7 +42,7 @@ class SimpleQPWLSModel(BaseModel):
         # Define the terms
 
         self.model_names = ['Sampling']
-        self.loss_names = ['G_I_L1', 'G_I_L2', 'grad', 'slew', 'TE', 'pi']
+        self.loss_names = ['G_I_L1', 'G_I_L2', 'grad', 'slew']
 
         # keep track of all loss values over epochs
         
