@@ -93,9 +93,19 @@ def traj2norm(ktraj, res=2e-3):
 
 def eddy_perturbation(ktraj, opt, ampl=1e-5, alphas=None, taus=None):
     """
-    simple eddy current forward model
+    simple eddy current (EC) forward model
+    inputs:
+        ktraj:  k-space locations, physical units! [2, nSamplingPoints]
+        opt:    options structure
+        ampl:   global scaling of eddy current strength
+        alphas: amplitudes of individual EC components
+        taus:   time constants of individual EC components
+    
+    returns:
+        k_perturbed: k-space locations after applying multi-exponential EC model to gradient waveforms
+
     """
-    ktraj_phys = ktraj.clone().reshape([2,opt.num_shots,opt.nfe])
+    ktraj_phys = ktraj.clone().reshape([2,opt.num_shots,opt.nfe]) # fix shape
 
     # k-trajectory to gradient waveforms (finite differences / derivative)
     grad = (ktraj_phys[:,:,1:] - ktraj_phys[:,:,:-1]) / opt.dt / (gamma_*1e6) # [T/m]
@@ -162,3 +172,5 @@ def set_misc_params(opt):
     opt.epoch_count = 1
     opt.continue_train = False
     opt.ReconVSTraj = 1 # scaling factor of trajectory learning rate
+    
+    
