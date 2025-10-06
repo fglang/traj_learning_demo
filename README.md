@@ -1,13 +1,10 @@
 # demo: learning-based k-space trajectory design
 ESMRMB 2025 member session: Self-learning MR
 
-click here to run in Colab:
-https://githubtocolab.com/fglang/traj_learning_demo/blob/master/simple_SNOPY.ipynb
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://githubtocolab.com/fglang/traj_learning_demo/blob/master/simple_SNOPY.ipynb)
 
 The demo is based on SNOPY (**S**tochastic optimization framework for 3D **NO**n-Cartesian sam**P**ling trajector**Y**) by Wang et al. (https://dx.doi.org/10.1002/mrm.29645) from the University of Michigan. \
 Original code: https://github.com/guanhuaw/SNOPY
-
-![Schematic: learning-based k-space trajectory design](figures/traj_learning_schematic.png "Schematic: learning-based k-space trajectory design")
 
 ## Overview
 There is a growing body of research on learning-based trajectory design, especially non-Cartesian and jointly learning a tailored NN-based reconstruction.
@@ -47,5 +44,8 @@ Below is a non-comprehensive overview of some published methods for learning-bas
     - address by parametrization, e.g. splines
 - many local minima
 - training data
-    - ideally complex multi-coil 
+    - ideally complex multi-coil
+ 
+## Schematic of the approach
+![Schematic: learning-based k-space trajectory design](figures/traj_learning_schematic.png "Schematic: learning-based k-space trajectory design")
 
