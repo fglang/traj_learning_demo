@@ -12,7 +12,7 @@ Original code: https://github.com/guanhuaw/SNOPY
 There is a growing body of research on learning-based trajectory design, especially non-Cartesian and jointly learning a tailored NN-based reconstruction.
 
 Below is a non-comprehensive overview of some published methods for learning-based design of non-Cartesian trajectories. All of them consider hardware limits, such as gradient amplitudes and slew rates. This means that, rather than learning sampling masks for Cartesian straight-line readouts, they learn true non-Cartesian trajectories.
-| DOI | Year | Code Availability | Comments |
+| Method | Year | Code Availability | Comments |
 |---|---|---|---|
 | [SPARKLING](https://dx.doi.org/10.1002/mrm.27678) | 2019 | upon request | optimized for CS reco, fixed target sampling density, model-driven, no training data required |
 | [3D-SPARKLING](https://dx.doi.org/10.1002/nbm.4349) | 2020 | upon request | stack-of-SPARKLING & full 3D |
