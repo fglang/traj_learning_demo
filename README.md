@@ -11,33 +11,7 @@ Original code: https://github.com/guanhuaw/SNOPY
 ## Schematic of the approach
 ![Schematic: learning-based k-space trajectory design](figures/traj_learning_schematic.png "Schematic: learning-based k-space trajectory design")
 
-### Main objectives
-- make efficient use of gradient hardware -> acquisition speed
-    - comply with amplitude and slew rate constraints
-    - peripheral nerve stimulation
-- favourable properties for reconstruction
-    - parallel imaging:
-        - avoid large gaps between samples (noise amplification -> CAIPI)
-        - ...but also not too close (multi-coil correlations -> Poisson disc)
-    - compressed sensing:
-        - incoherent PSF
-        - variable sampling density
-    - deep learning:
-        - data-driven
-        - tailored to specific anatomy?
-        - tailored to downstream tasks (e.g. segmentation)?
-
-### Challenges
-- hardware imperfections (eddy currents, delays, off-resonance)
-- many degrees of freedom
-    - address by parametrization, e.g. splines
-- many local minima
-- training data
-    - ideally complex multi-coil
-
 ## Literature
-There is a growing body of research on learning-based trajectory design, especially non-Cartesian and jointly learning a tailored NN-based reconstruction.
-
 Below is a non-comprehensive overview of some published methods for learning-based design of non-Cartesian trajectories. All of them consider hardware limits, such as gradient amplitudes and slew rates. This means that, rather than learning sampling masks for Cartesian straight-line readouts, they learn true non-Cartesian trajectories.
 | Method | Year | Code Availability | Comments |
 |---|---|---|---|
@@ -49,6 +23,29 @@ Below is a non-comprehensive overview of some published methods for learning-bas
 | [BJORK](https://dx.doi.org/10.1109/TMI.2022.3161875) | 2022 | https://github.com/guanhuaw/Bjork | B-spline parametrization, analytical NUFFT Jacobian, end-to-end with reco |
 | [SNOPY](https://dx.doi.org/10.1002/mrm.29645) | 2023 | https://github.com/guanhuaw/SNOPY | similar to BJORK, 3D, PNS penalty, general framework for arbitrary parametrizations |
 
+### Main objectives
+- make efficient use of gradient hardware -> acquisition speed
+    - comply with amplitude and slew rate constraints
+    - peripheral nerve stimulation
+- favourable properties for reconstruction
+    - parallel imaging:
+        - avoid large gaps between samples (noise amplification -> [CAIPI](https://doi.org/10.1002/mrm.20787))
+        - ...but also not too close (multi-coil correlations -> [Poisson disc](https://dx.doi.org/10.1109/ISBI.2011.5872579))
+    - compressed sensing:
+        - incoherent PSF
+        - variable sampling density
+    - deep learning:
+        - data-driven
+        - tailored to specific anatomy?
+        - tailored to downstream tasks (e.g. segmentation)?
+
+### Challenges
+- hardware imperfections ([eddy currents](https://dx.doi.org/10.1002/mrm.70093), delays, off-resonance, ...)
+- many degrees of freedom
+    - address by parametrization, e.g. splines
+- [many local minima](https://doi.org/10.1088/1361-6420/ac86c1)
+- [training data](https://dx.doi.org/10.1073/pnas.2117203119)
+    - ideally complex multi-coil
  
 ## Optimization example
 ![demo gif](figures/traj_demo1.gif "Example of trajectory optimization")
