@@ -176,7 +176,7 @@ def set_misc_params(opt):
     opt.ReconVSTraj = 1 # scaling factor of trajectory learning rate
     
 
-def pulseq_radial_out(Nx, Nr, ros=2, fov=220e-3, alpha=10, slice_thickness=3e-3, TR=20e-3, do_plot=True):
+def pulseq_radial_out(Nx, Nr, ros=2, fov=220e-3, alpha=10, slice_thickness=3e-3, TR=10, do_plot=True):
  
     # adapted from https://github.com/imr-framework/pypulseq/blob/master/examples/scripts/write_radial_gre.py
     seq = pp.Sequence()
@@ -213,7 +213,7 @@ def pulseq_radial_out(Nx, Nr, ros=2, fov=220e-3, alpha=10, slice_thickness=3e-3,
     # Define other gradients and ADC events
     deltak = 1 / fov
     gx = pp.make_trapezoid(
-        channel="x", flat_area=Nx * deltak, flat_time=6.4e-3 / 5, system=system
+        channel="x", flat_area=Nx * deltak / 2, flat_time=6.4e-3 / 5, system=system
     )
     gy = pp.make_trapezoid(
         channel="x", flat_area=0, flat_time=6.4e-3 / 5, system=system
@@ -268,7 +268,7 @@ def pulseq_radial_out(Nx, Nr, ros=2, fov=220e-3, alpha=10, slice_thickness=3e-3,
     
 
     k_traj_adc, k_traj, _, _, t_adc = seq.calculate_kspace()
-    knorm = np.reshape(k_traj_adc * fov / Nx * np.pi, [3, Nr, -1])
+    knorm = np.reshape(k_traj_adc * fov / Nx * 2 * np.pi, [3, Nr, -1])
     
     if do_plot:
         seq.plot()
